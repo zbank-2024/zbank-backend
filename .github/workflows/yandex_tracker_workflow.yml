@@ -18,8 +18,8 @@ jobs:
           fi
           curl -X POST \
             https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
-            -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-            -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+            -H "Authorization: OAuth ${{ vars.YANDEX_OAUTH_TOKEN }}" \
+            -H "X-Org-ID: ${{ vars.YANDEX_ORG_ID }}" \
             -H "Content-Type: application/json" \
             -d '{"transition":{"id":"inReview"}}'
 
