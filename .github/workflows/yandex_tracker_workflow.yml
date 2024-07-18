@@ -1,39 +1,42 @@
-name: YC Tracker
+name: Update Yandex Tracker
+
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
+    types: [opened, closed]
 
 jobs:
- transit-tasks:
+  update_tracker_on_pr_open:
+    if: github.event.action == 'opened'
     runs-on: ubuntu-latest
     steps:
+      - name: Set task status to "Review"
+        run: |
+          TASK_ID=$(echo ${{ github.event.pull_request.title }} | grep -o '[A-Z]*-[0-9]*')
+          if [ -z "$TASK_ID" ]; then
+            echo "No task ID found in the pull request title."
+            exit 1
+          fi
+          curl -X POST \
+            https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
+            -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+            -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+            -H "Content-Type: application/json" \
+            -d '{"transition":{"id":"inReview"}}'
 
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Move Task When PR Opened
-        if: github.event.action != 'closed'
-        uses: evrone-erp/yandex-tracker-action@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          yandex_org_id: ${{ secrets.YANDEX_ORG_ID }}
-          yandex_oauth2_token: ${{ secrets.YANDEX_OAUTH2_TOKEN }}
-          task_url: true
-          ignore: ERP-31,ERP-32
-
-      - name: Move Task When PR Merged
-        if: github.event.pull_request.merged == true
-        uses: evrone-erp/yandex-tracker-action@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          yandex_org_id: ${{ secrets.YANDEX_ORG_ID }}
-          yandex_oauth2_token: ${{ secrets.YANDEX_OAUTH2_TOKEN }}
-          task_url: true
-          ignore: ERP-31,ERP-32
-
+  update_tracker_on_pr_merge:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set task status to "Testing"
+        run: |
+          TASK_ID=$(echo ${{ github.event.pull_request.title }} | grep -o '[A-Z]*-[0-9]*')
+          if [ -z "$TASK_ID" ]; then
+            echo "No task ID found in the pull request title."
+            exit 1
+          fi
+          curl -X POST \
+            https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
+            -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+            -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+            -H "Content-Type: application/json" \
+            -d '{"transition":{"id":"testing"}}'
