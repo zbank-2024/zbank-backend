@@ -11,11 +11,15 @@ jobs:
     steps:
       - name: Set task status to "Review"
         run: |
-          TASK_ID=$(echo ${{ github.event.pull_request.title }} | grep -o '[A-Z]*-[0-9]*')
+          TASK_ID=$(echo FR-5 варс в ридми, а не сикретс | grep -o '[A-Z]*-[0-9]*')
           if [ -z "$TASK_ID" ]; then
             echo "No task ID found in the pull request title."
             exit 1
           fi
+
+          # Debugging output
+          echo "Task ID: $TASK_ID"
+
           curl -X POST \
             https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
             -H "Authorization: OAuth ${{ vars.YANDEX_OAUTH_TOKEN }}" \
