@@ -39,7 +39,7 @@ jobs:
       run: |
         curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/inReview/_execute" \
           -H "Host: api.tracker.yandex.net" \
-          -H "Authorization: Bearer ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+          -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
           -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
           -H "Content-Type: application/json" \
 
@@ -54,6 +54,6 @@ jobs:
       run: |
         curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
           -H "Host: api.tracker.yandex.net" \
-          -H "Authorization: Bearer ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+          -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
           -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
           -H "Content-Type: application/json" \
