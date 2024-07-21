@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Extract task code from branch name
       id: extract_task_code
       run: echo "TASK_CODE=$(echo '${{ github.ref }}' | cut -d'/' -f3 | cut -d'-' -f2)" >> $GITHUB_ENV
-    
+
     - name: Check if commit contains task code
       if: github.event_name == 'push'
       run: |

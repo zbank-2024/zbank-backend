@@ -1,5 +1,7 @@
-from zbank.api.root.router import router as root_router
-from zbank.application import app
+from fastapi import APIRouter
+
+from zbank.api.health.router import health_router
 
 
-app.include_router(root_router)
+router = APIRouter(prefix='/v1')
+router.include_router(health_router)
