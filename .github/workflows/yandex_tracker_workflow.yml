@@ -37,10 +37,10 @@ jobs:
     - name: Update Yandex Tracker to 'Review'
       if: github.event_name == 'push' && env.TASK_CODE
       run: |
-        curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/inReview/_execute" \
+        curl -X POST "https://api.tracker.yandex.net/v2/issues/FR-${{ env.TASK_CODE }}/transitions/inReview/_execute" \
           -H "Host: api.tracker.yandex.net" \
           -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_CLOUD_ORG_ID }}" \
           -H "Content-Type: application/json" \
 
     - name: Check if pull request is merged
@@ -52,8 +52,8 @@ jobs:
     - name: Update Yandex Tracker to 'Testing'
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && env.TASK_CODE
       run: |
-        curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
+        curl -X POST "https://api.tracker.yandex.net/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
           -H "Host: api.tracker.yandex.net" \
           -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_CLOUD_ORG_ID }}" \
           -H "Content-Type: application/json" \
