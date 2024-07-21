@@ -1,42 +1,59 @@
-name: Update Yandex Tracker
+name: Yandex Tracker Workflow
 
 on:
+  push:
+    branches:
+      - 'FR-*'
   pull_request:
-    types: [opened, closed]
+    types:
+      - closed
 
 jobs:
-  update_tracker_on_pr_open:
-    if: github.event.action == 'opened'
+  update_tracker:
     runs-on: ubuntu-latest
-    steps:
-      - name: Set task status to "Review"
-        run: |
-          TASK_ID=$(echo ${{ github.event.pull_request.title }} | grep -o '[A-Z]*-[0-9]*')
-          if [ -z "$TASK_ID" ]; then
-            echo "No task ID found in the pull request title."
-            exit 1
-          fi
-          curl -X POST \
-            https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
-            -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-            -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
-            -H "Content-Type: application/json" \
-            -d '{"transition":{"id":"inReview"}}'
 
-  update_tracker_on_pr_merge:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
     steps:
-      - name: Set task status to "Testing"
-        run: |
-          TASK_ID=$(echo ${{ github.event.pull_request.title }} | grep -o '[A-Z]*-[0-9]*')
-          if [ -z "$TASK_ID" ]; then
-            echo "No task ID found in the pull request title."
-            exit 1
-          fi
-          curl -X POST \
-            https://api.tracker.yandex.net/v2/issues/$TASK_ID/transitions \
-            -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-            -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
-            -H "Content-Type: application/json" \
-            -d '{"transition":{"id":"testing"}}'
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Extract task code from branch name
+      id: extract_task_code
+      run: echo "TASK_CODE=$(echo '${{ github.ref }}' | cut -d'/' -f3 | cut -d'-' -f2)" >> $GITHUB_ENV
+    
+    - name: Check if commit contains task code
+      if: github.event_name == 'push'
+      run: |
+        TASK_CODE=$(echo ${{ github.ref }} | grep -oP '(?<=FR-)\d+')
+        COMMIT_MSG=$(git log -1 --pretty=%B)
+        if echo "$COMMIT_MSG" | grep -q "FR-$TASK_CODE"; then
+          echo "Task code found in commit message"
+          echo "TASK_CODE=$TASK_CODE" >> $GITHUB_ENV
+        else
+          echo "Task code not found in commit message"
+          exit 1
+        fi
+
+    - name: Update Yandex Tracker to 'Review'
+      if: github.event_name == 'push' && env.TASK_CODE
+      run: |
+        curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/inReview/_execute" \
+          -H "Host: api.tracker.yandex.net" \
+          -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+          -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "Content-Type: application/json" \
+
+    - name: Check if pull request is merged
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      run: |
+        TASK_CODE=$(echo ${{ github.head_ref }} | grep -oP '(?<=FR-)\d+')
+        echo "TASK_CODE=$TASK_CODE" >> $GITHUB_ENV
+
+    - name: Update Yandex Tracker to 'Testing'
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && env.TASK_CODE
+      run: |
+        curl -X POST "https://tracker.yandex.ru/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
+          -H "Host: api.tracker.yandex.net" \
+          -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
+          -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "Content-Type: application/json" \
