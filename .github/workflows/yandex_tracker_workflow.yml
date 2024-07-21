@@ -44,13 +44,13 @@ jobs:
           -H "Content-Type: application/json" \
 
     - name: Check if pull request is merged
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
       run: |
         TASK_CODE=$(echo ${{ github.head_ref }} | grep -oP '(?<=FR-)\d+')
         echo "TASK_CODE=$TASK_CODE" >> $GITHUB_ENV
 
     - name: Update Yandex Tracker to 'Testing'
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && env.TASK_CODE
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && env.TASK_CODE
       run: |
         curl -X POST "https://api.tracker.yandex.net/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
           -H "Host: api.tracker.yandex.net" \
