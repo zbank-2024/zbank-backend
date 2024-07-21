@@ -40,7 +40,7 @@ jobs:
         curl -X POST "https://api.tracker.yandex.net/v2/issues/FR-${{ env.TASK_CODE }}/transitions/inReview/_execute" \
           -H "Host: api.tracker.yandex.net" \
           -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-          -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
           -H "Content-Type: application/json" \
 
     - name: Check if pull request is merged
@@ -55,5 +55,5 @@ jobs:
         curl -X POST "https://api.tracker.yandex.net/v2/issues/FR-${{ env.TASK_CODE }}/transitions/testing/_execute" \
           -H "Host: api.tracker.yandex.net" \
           -H "Authorization: OAuth ${{ secrets.YANDEX_OAUTH_TOKEN }}" \
-          -H "X-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
+          -H "X-Cloud-Org-ID: ${{ secrets.YANDEX_ORG_ID }}" \
           -H "Content-Type: application/json" \
