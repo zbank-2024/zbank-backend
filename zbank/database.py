@@ -1,5 +1,7 @@
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
@@ -34,3 +36,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             raise exc
         else:
             await session.commit()
+
+
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
