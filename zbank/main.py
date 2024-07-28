@@ -1,7 +1,15 @@
-from uvicorn import run
+from fastapi import FastAPI
+from sqlalchemy.exc import NoResultFound
 
-from zbank.application import app
+from zbank.config.swagger import app_config
+from zbank.exceptions import http_not_found_exception_handler
+from zbank.router import router
 
 
-if __name__ == "__main__":
-    run(app, host="localhost", port=8000)
+app = FastAPI(**app_config)
+app.include_router(router)
+
+app.add_exception_handler(NoResultFound, http_not_found_exception_handler)
+
+
+# Middlewares or something #
