@@ -5,6 +5,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     DATABASE_DSN: PostgresDsn
 
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str = "zbank"
+
     JWT_ALGORITHM: str
     JWT_ACCESS_TOKEN_SECRET: str
     JWT_REFRESH_TOKEN_SECRET: str
