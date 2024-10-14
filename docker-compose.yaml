@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
     networks:
       - zbank-network
-      
+
 volumes:
   postgres-data:
 
