@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - zbank-network
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5469:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - PGPORT=${DATABASE_PORT}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - zbank-network
+      
+volumes:
+  postgres-data:
+
+networks:
+  zbank-network:

@@ -1,7 +1,11 @@
 tags_metadata = [
     {
         "name": "health",
-        "description": "проверяет работспособность API",
+        "description": "Проверяет работспособность API",
+    },
+    {
+        "name": "auth",
+        "description": "Авторизация",
     },
 ]
 
